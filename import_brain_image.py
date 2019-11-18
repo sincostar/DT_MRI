@@ -18,7 +18,7 @@ IMAGE_LENGTH = 128
 IMAGE_WIDTH = 128
 
 
-def load_orig(filename):
+def load_brain(filename):
     img = nib.load(filename)
     # print(img)
     # print(img.header['db_name'])  # 输出头信息
@@ -68,4 +68,4 @@ def load_orig(filename):
     return img_arr
 
 
-load_orig(brain_filename)
+# load_brain(brain_filename)

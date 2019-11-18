@@ -21,8 +21,8 @@ IMAGE_WIDTH = 128
 
 def load_orig(filename):
     img = nib.load(filename)
-    print(img)
-    print(img.header['db_name'])  # 输出头信息
+    #  print(img)
+    # print(img.header['db_name'])  # 输出头信息
 
     width, height, queue = img.dataobj.shape
 
@@ -58,4 +58,4 @@ def load_orig(filename):
     return img_arr
 
 
-load_orig(orig_filename)
+# load_orig(orig_filename)
