@@ -34,10 +34,10 @@ def import_data(file_path):
             file_index = int(pattern.findall(file_name)[0])
     """
     brain_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_brain.nii.gz'
-    orig_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28675_T1_orig.nii.gz'
-    orig = import_orig_image.load_orig(orig_filename)[:, :, 64].astype(np.uint8)
-    brain = import_brain_image.load_brain(brain_filename)[:, :, 64].astype(np.uint8)
-    print(type(brain))
+    orig_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_orig.nii.gz'
+    orig = import_orig_image.load_orig(orig_filename)[:, :, 50].astype(np.uint8)
+    brain = import_brain_image.load_brain(brain_filename)[:, :, 50].astype(np.uint8)
+    print(brain.size)
     # plt.imshow(orig, cmap='Reds')
     # plt.imshow(brain)
     # plt.show()
