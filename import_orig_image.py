@@ -51,7 +51,7 @@ def load_orig(filename):
         z_start = round(queue / 2) - IMAGE_HEIGHT
         z_end = round(queue / 2) + IMAGE_HEIGHT
         img_arr = img_arr[:, :, z_start:z_end]
-    img_arr = ndi.zoom(img_arr, 0.5)
+    img_arr = ndi.zoom(img_arr, 0.25)
 
     # OrthoSlicer3D(img_arr).show()
 

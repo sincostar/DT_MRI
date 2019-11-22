@@ -61,7 +61,7 @@ def load_brain(filename):
                 if img_arr[i, j, k]:
                     img_arr[i, j, k] = 255
 
-    img_arr = ndi.zoom(img_arr, 0.5)
+    img_arr = ndi.zoom(img_arr, 0.25)
 
     # OrthoSlicer3D(img_arr).show()
 
