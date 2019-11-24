@@ -54,7 +54,6 @@ def load_orig(filename):
     img_arr = ndi.zoom(img_arr, 0.25)
 
     # OrthoSlicer3D(img_arr).show()
-
     return img_arr
 
 

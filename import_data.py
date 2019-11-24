@@ -2,9 +2,10 @@ import import_orig_image
 import import_brain_image
 import re
 import os
+import numpy as np
 from matplotlib import pylab as plt
 import cv2
-import numpy as np
+from numpy import asarray
 
 
 file_path1 = 'D:/DT/BrainMRI/BrainMRI'
@@ -20,25 +21,45 @@ IMAGE_WIDTH = 128
 
 def import_data(file_path):
     file_index_list = []
-
+    orig_image_name_list = []
+    brain_image_name_list = []
     for file_name in os.listdir(file_path):
         # print(file_name)
         pattern = re.compile(r'\d\d\d\d\d')
         file_index = pattern.findall(file_name)[0]
         if file_index not in file_index_list:
             file_index_list.append(file_index)
-    print(file_index_list)
-    '''
-    for file_name in os.listdir(file_path):
-        if re.match(".*T1_orig.*", file_name) is not None and file_index == int(pattern.findall(file_name)[0]):
-            # import_orig_image.load_orig(file_path + '/' + file_name)
-            print(file_name)
 
+        if re.match(".*T1_orig.*", file_name) is not None:
+            orig_image_name_list.append(file_name)
         elif re.match(".*T1_brain.*", file_name) is not None:
-            # import_orig_image.load_orig(file_path + '/' + file_name)
-            print(file_name)
-            file_index = int(pattern.findall(file_name)[0])
-    '''
+            brain_image_name_list.append(file_name)
+    print(file_index_list)
+    print(orig_image_name_list)
+    print(brain_image_name_list)
+
+    brain_image_data_list = []
+    orig_image_data_list = []
+    for file_index in file_index_list:
+        orig_image_data = []
+        brain_image_data = []
+        for orig_image_name in orig_image_name_list:
+            if re.match(".*" + file_index + ".*", orig_image_name) is not None:
+                orig_image_data = import_orig_image.load_orig(file_path1 + '/' + orig_image_name).tolist()
+                break
+        for brain_image_name in brain_image_name_list:
+            if re.match(".*" + file_index + ".*", brain_image_name) is not None:
+                brain_image_data = import_brain_image.load_brain(file_path1 + '/' + brain_image_name).tolist()
+                break
+        if orig_image_data != [] and brain_image_data != []:
+            brain_image_data_list.append(brain_image_data)
+            orig_image_data_list.append(orig_image_data)
+    print(len(file_index_list))
+    print(len(orig_image_data_list))
+    print(len(brain_image_data_list))
+    np.save(file='orig_image_data.npy', arr=orig_image_data_list)
+    np.save(file='brain_image_data.npy', arr=brain_image_data_list)
+    # return
     """
     brain_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_brain.nii.gz'
     orig_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_orig.nii.gz'
@@ -60,4 +81,4 @@ def import_data(file_path):
     cv2.destroyWindow('test')
     """
 
-import_data(file_path1)
+# import_data(file_path1)
