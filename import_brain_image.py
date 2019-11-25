@@ -62,10 +62,11 @@ def load_brain(filename):
                     img_arr[i, j, k] = 255
 
     img_arr = ndi.zoom(img_arr, 0.25)
+    nib_img = nib.Nifti1Image(img_arr, img.affine)
 
     # OrthoSlicer3D(img_arr).show()
 
-    return img_arr
+    return nib_img
 
 
 # load_brain(brain_filename)

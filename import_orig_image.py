@@ -1,6 +1,3 @@
-# Plot the mean image because we have no anatomic data
-
-from matplotlib import pylab as plt
 import nibabel as nib
 import matplotlib
 matplotlib.use('TkAgg')
@@ -52,9 +49,10 @@ def load_orig(filename):
         z_end = round(queue / 2) + IMAGE_HEIGHT
         img_arr = img_arr[:, :, z_start:z_end]
     img_arr = ndi.zoom(img_arr, 0.25)
+    nib_img = nib.Nifti1Image(img_arr, img.affine)
 
     # OrthoSlicer3D(img_arr).show()
-    return img_arr
+    return nib_img
 
 
 # load_orig(orig_filename)

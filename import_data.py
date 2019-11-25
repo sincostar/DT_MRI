@@ -2,6 +2,8 @@ import import_orig_image
 import import_brain_image
 import re
 import os
+import nibabel as nib
+import scipy.misc
 import numpy as np
 from matplotlib import pylab as plt
 import cv2
@@ -9,6 +11,7 @@ from numpy import asarray
 
 
 file_path1 = 'D:/DT/BrainMRI/BrainMRI'
+save_path = "data/"
 
 '''
 global IMAGE_LENGTH, IMAGE_WIDTH, IMAGE_HEIGHT
@@ -17,7 +20,6 @@ IMAGE_HEIGHT = 128
 IMAGE_LENGTH = 128
 IMAGE_WIDTH = 128
 '''
-
 
 def import_data(file_path):
     file_index_list = []
@@ -34,10 +36,8 @@ def import_data(file_path):
             orig_image_name_list.append(file_name)
         elif re.match(".*T1_brain.*", file_name) is not None:
             brain_image_name_list.append(file_name)
-    print(file_index_list)
-    print(orig_image_name_list)
-    print(brain_image_name_list)
 
+    file_data_index_list = []
     brain_image_data_list = []
     orig_image_data_list = []
     for file_index in file_index_list:
@@ -45,21 +45,39 @@ def import_data(file_path):
         brain_image_data = []
         for orig_image_name in orig_image_name_list:
             if re.match(".*" + file_index + ".*", orig_image_name) is not None:
-                orig_image_data = import_orig_image.load_orig(file_path1 + '/' + orig_image_name).tolist()
+                orig_image_data = import_orig_image.load_orig(file_path1 + '/' + orig_image_name)
                 break
         for brain_image_name in brain_image_name_list:
             if re.match(".*" + file_index + ".*", brain_image_name) is not None:
-                brain_image_data = import_brain_image.load_brain(file_path1 + '/' + brain_image_name).tolist()
+                brain_image_data = import_brain_image.load_brain(file_path1 + '/' + brain_image_name)
                 break
         if orig_image_data != [] and brain_image_data != []:
+            file_data_index_list.append(file_index)
             brain_image_data_list.append(brain_image_data)
             orig_image_data_list.append(orig_image_data)
-    print(len(file_index_list))
-    print(len(orig_image_data_list))
-    print(len(brain_image_data_list))
-    np.save(file='orig_image_data.npy', arr=orig_image_data_list)
-    np.save(file='brain_image_data.npy', arr=brain_image_data_list)
-    # return
+
+    train_orig_image_data = orig_image_data_list[:80]
+    train_brain_image_data = brain_image_data_list[:80]
+    validation_orig_image_data = orig_image_data_list[81:100]
+    validation_brain_image_data = brain_image_data_list[81:100]
+    test_orig_image_data = orig_image_data_list[101:]
+    test_brain_image_data = brain_image_data_list[101:]
+
+    for i in range(len(train_orig_image_data)):
+        nib.save(train_orig_image_data[i], save_path + "train/" + file_data_index_list[i] + "_orig.nii.gz")
+        nib.save(train_brain_image_data[i], save_path + "train/" + file_data_index_list[i] + "_brain.nii.gz")
+
+    for i in range(len(validation_orig_image_data)):
+        nib.save(validation_orig_image_data[i], save_path + "validation/" +
+                 file_data_index_list[i + len(train_orig_image_data)] + "_orig.nii.gz")
+        nib.save(validation_brain_image_data[i], save_path + "validation/" +
+                 file_data_index_list[i + len(train_orig_image_data)] + "_brain.nii.gz")
+
+    for i in range(len(test_orig_image_data)):
+        nib.save(test_orig_image_data[i], save_path + "test/" +
+                 file_data_index_list[i+len(train_orig_image_data)+len(validation_orig_image_data)] + "_orig.nii.gz")
+        nib.save(test_brain_image_data[i], save_path + "test/" +
+                 file_data_index_list[i+len(train_orig_image_data)+len(validation_orig_image_data)] + "_brain.nii.gz")
     """
     brain_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_brain.nii.gz'
     orig_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_orig.nii.gz'
@@ -80,5 +98,7 @@ def import_data(file_path):
     cv2.waitKey(0)
     cv2.destroyWindow('test')
     """
+    # return
 
-# import_data(file_path1)
+
+import_data(file_path1)
