@@ -58,10 +58,10 @@ def import_data(file_path):
 
     train_orig_image_data = orig_image_data_list[:80]
     train_brain_image_data = brain_image_data_list[:80]
-    validation_orig_image_data = orig_image_data_list[81:100]
-    validation_brain_image_data = brain_image_data_list[81:100]
-    test_orig_image_data = orig_image_data_list[101:]
-    test_brain_image_data = brain_image_data_list[101:]
+    validation_orig_image_data = orig_image_data_list[80:100]
+    validation_brain_image_data = brain_image_data_list[80:100]
+    test_orig_image_data = orig_image_data_list[100:]
+    test_brain_image_data = brain_image_data_list[100:]
 
     for i in range(len(train_orig_image_data)):
         nib.save(train_orig_image_data[i], save_path + "train/" + file_data_index_list[i] + "_orig.nii.gz")
@@ -100,5 +100,4 @@ def import_data(file_path):
     """
     # return
 
-
-import_data(file_path1)
+# import_data(file_path1)

@@ -86,8 +86,8 @@ class SimpleTFModel(Model):
 
         need_imgs = kwargs.get('need_imgs', False)
         eval_img = None
-        if need_imgs:
-            eval_img = self._get_imgs_eval(xs, ys, prob)
+        # if need_imgs:
+        #     eval_img = self._get_imgs_eval(xs, ys, prob)
 
         need_logits = kwargs.get('need_logits', False)
         if need_logits:

@@ -65,7 +65,6 @@ def load_brain(filename):
     nib_img = nib.Nifti1Image(img_arr, img.affine)
 
     # OrthoSlicer3D(img_arr).show()
-
     return nib_img
 
 
