@@ -14,6 +14,9 @@ from models.model import SimpleTFModel
 from nets_tf.unet3d import UNet3D
 
 
+config = tf.compat.v1.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.compat.v1.InteractiveSession(config=config)
 gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.80)
 sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(gpu_options=gpu_options))
 
@@ -28,7 +31,7 @@ parser.add_argument('-mbs', '--minibatch_size', type=int, default=2, help='mini-
 parser.add_argument('-ebs', '--eval_batch_size', type=int, default=1, help='mini-batch size')
 parser.add_argument('-ef', '--eval_frequency', type=int, default=1, help='frequency of evaluation within training')
 parser.add_argument('-lr', '--learning_rate', type=float, default=0.0001, help='learning rate')
-parser.add_argument('-out', '--output_path', type=str, default='results/test1/')
+parser.add_argument('-out', '--output_path', type=str, default='results/test1')
 args = parser.parse_args()
 
 output_path = args.output_path
@@ -42,7 +45,9 @@ org_suffix = '_orig.nii.gz'
 lab_suffix = '_brain.nii.gz'
 
 pre = {org_suffix: [('channelcheck', 1)],
-       lab_suffix: [('one-hot', [0, 1]), ('channelcheck', 2)]}
+       lab_suffix: [('one-hot', 2), ('channelcheck', 2)]}
+
+
 
 processor = SimpleImageProcessor(pre=pre)
 
@@ -54,10 +59,10 @@ validation_provider = DataProvider(valid_set, [org_suffix, lab_suffix],
                         is_pre_load=False,
                         processor=processor)
 
-u_net = UNet3D(n_class=2, n_layer=5, root_filters=16, use_bn=True)
+u_net = UNet3D(n_class=2, n_layer=3, root_filters=16, use_bn=True)
 
 model = SimpleTFModel(u_net, org_suffix, lab_suffix, dropout=0, loss_function={'cross-entropy': 1.},
-                      weight_function={'balance'})
+                      weight_function=None)
 optimizer = tf.keras.optimizers.Adam(args.learning_rate)
 
 trainer = Trainer(model)
@@ -71,7 +76,7 @@ result = trainer.train(train_provider, validation_provider,
                        optimizer=optimizer,
                        eval_frequency=args.eval_frequency,
                        is_save_train_imgs=False,
-                       is_save_valid_imgs=False,
+                       is_save_valid_imgs=True,
                        is_rebuilt_path=True)
 
 # eval test & pre load test

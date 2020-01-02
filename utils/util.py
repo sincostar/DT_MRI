@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 def dict_append(old_dict, new_dict):
     if new_dict is None:
@@ -73,8 +74,10 @@ def recale_array(array, nmin=None, nmax=None, tmin=0, tmax=255, dtype=np.uint8):
     array = (array * (tmax - tmin)) - tmin
     return array.astype(dtype)
 
+
 def gray2rgb(img):
     return np.stack((img,)*3, axis=-1)
+
 
 def combine_2d_imgs_from_tensor(img_list):
     imgs = []
@@ -93,3 +96,17 @@ def combine_2d_imgs_from_tensor(img_list):
     combined = np.concatenate(imgs, 1)
     return combined
 
+
+def combine_3d_imgs_from_tensor(img_list):
+    imgs = []
+    combined = None
+    for im in img_list:
+        assert len(im.shape) == 4 or len(im.shape) == 5 and im.shape[-1] in [1, 3], \
+        'Only accept gray or rgb 2d images with shape [n, x, y, z] or  [n, x, y, z, c], where c = 1 (gray) or 3 (rgb).'
+        # for _ in range(5):
+
+        im = recale_array(im)
+        im = im.reshape(-1, im.shape[-2], im.shape[-1])
+        imgs.append(im)
+    combined = np.concatenate(imgs, 1)
+    return combined

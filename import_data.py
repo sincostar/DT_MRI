@@ -22,6 +22,7 @@ IMAGE_WIDTH = 128
 '''
 
 def import_data(file_path):
+
     file_index_list = []
     orig_image_name_list = []
     brain_image_name_list = []
@@ -75,9 +76,11 @@ def import_data(file_path):
 
     for i in range(len(test_orig_image_data)):
         nib.save(test_orig_image_data[i], save_path + "test/" +
-                 file_data_index_list[i+len(train_orig_image_data)+len(validation_orig_image_data)] + "_orig.nii.gz")
+                 file_data_index_list[i+len(train_orig_image_data)+len(validation_orig_image_data)]
+                 + "_orig.nii.gz")
         nib.save(test_brain_image_data[i], save_path + "test/" +
-                 file_data_index_list[i+len(train_orig_image_data)+len(validation_orig_image_data)] + "_brain.nii.gz")
+                 file_data_index_list[i+len(train_orig_image_data)+len(validation_orig_image_data)]
+                 + "_brain.nii.gz")
     """
     brain_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_brain.nii.gz'
     orig_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_orig.nii.gz'
@@ -100,4 +103,4 @@ def import_data(file_path):
     """
     # return
 
-# import_data(file_path1)
+import_data(file_path1)

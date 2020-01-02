@@ -8,8 +8,9 @@ from nibabel import nifti1
 from nibabel.viewers import OrthoSlicer3D
 import numpy as np
 
-brain_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_brain.nii.gz'
+brain_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28675_T1_brain.nii.gz'
 orig_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28675_T1_orig.nii.gz'
+standard_filename = "D:/DT/BrainMRI/BrainMRI/sub-28675_T1_unbiased_brain.nii.gz"
 
 IMAGE_HEIGHT = 128
 IMAGE_LENGTH = 128
@@ -18,8 +19,6 @@ IMAGE_WIDTH = 128
 
 def load_orig(filename):
     img = nib.load(filename)
-    #  print(img)
-    # print(img.header['db_name'])  # 输出头信息
 
     width, height, queue = img.dataobj.shape
 
@@ -48,11 +47,11 @@ def load_orig(filename):
         z_start = round(queue / 2) - IMAGE_HEIGHT
         z_end = round(queue / 2) + IMAGE_HEIGHT
         img_arr = img_arr[:, :, z_start:z_end]
-    img_arr = ndi.zoom(img_arr, 0.25)
+    # img_arr = ndi.zoom(img_arr, 0.25)
     nib_img = nib.Nifti1Image(img_arr, img.affine)
 
-    # OrthoSlicer3D(img_arr).show()
+    OrthoSlicer3D(img_arr).show()
     return nib_img
 
 
-# load_orig(orig_filename)
+load_orig(standard_filename)

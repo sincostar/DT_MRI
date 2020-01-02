@@ -86,8 +86,8 @@ class SimpleTFModel(Model):
 
         need_imgs = kwargs.get('need_imgs', False)
         eval_img = None
-        # if need_imgs:
-        #     eval_img = self._get_imgs_eval(xs, ys, prob)
+        if need_imgs:
+            eval_img = self._get_imgs_eval(xs, ys, prob)
 
         need_logits = kwargs.get('need_logits', False)
         if need_logits:
@@ -127,12 +127,18 @@ class SimpleTFModel(Model):
         img_dict = {}
         n_class = ys.shape[-1]
         for i in range(n_class):
-            img = U.combine_2d_imgs_from_tensor([xs, ys[..., i], prob[..., i]])
+            if len(xs.shape) == 3 or len(xs.shape) == 4 and xs.shape[-1] in [1, 3]:
+                img = U.combine_2d_imgs_from_tensor([xs, ys[..., i], prob[..., i]])
+            elif len(xs.shape) == 4 or len(xs.shape) == 5 and xs.shape[-1] in [1, 3]:
+                img = U.combine_3d_imgs_from_tensor([xs[..., 0], ys[..., i], prob[..., i]])
             img_dict.update({'class %d'%i: img})
 
         argmax_ys = np.argmax(ys, -1)
         argmax_prob = np.argmax(prob, -1)
-        img = U.combine_2d_imgs_from_tensor([xs, argmax_ys, argmax_prob])
+        if len(xs.shape) == 3 or len(xs.shape) == 4 and xs.shape[-1] in [1, 3]:
+            img = U.combine_2d_imgs_from_tensor([xs, argmax_ys, argmax_prob])
+        elif len(xs.shape) == 4 or len(xs.shape) == 5 and xs.shape[-1] in [1, 3]:
+            img = U.combine_3d_imgs_from_tensor([xs[..., 0], argmax_ys, argmax_prob])
         img_dict.update({'argmax': img})
 
         return img_dict

@@ -137,7 +137,6 @@ class Trainer:
     def predict(self, data_dict):
         return self.model.predict(data_dict)
 
-
     def _grads_add(self, grads, mini_grads):
         if grads is None:
             grads = mini_grads
