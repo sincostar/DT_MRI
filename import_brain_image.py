@@ -10,7 +10,7 @@ import math
 import scipy.ndimage as ndi
 
 
-brain_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_brain.nii.gz'
+brain_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28741_T1_orig_brain.nii.gz'
 orig_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28675_T1_orig.nii.gz'
 
 IMAGE_HEIGHT = 128
@@ -61,11 +61,11 @@ def load_brain(filename):
                 if img_arr[i, j, k]:
                     img_arr[i, j, k] = 255
 
-    img_arr = ndi.zoom(img_arr, 0.5)
+    img_arr = ndi.zoom(img_arr, 0.25)
     nib_img = nib.Nifti1Image(img_arr, img.affine)
 
-    OrthoSlicer3D(img_arr).show()
-    return img_arr
+    # OrthoSlicer3D(img_arr).show()
+    return nib_img
 
 
-load_brain(brain_filename)
+# load_brain(brain_filename)

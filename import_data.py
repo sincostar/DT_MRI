@@ -28,14 +28,14 @@ def import_data(file_path):
     brain_image_name_list = []
     for file_name in os.listdir(file_path):
         # print(file_name)
-        pattern = re.compile(r'\d\d\d\d\d')
+        pattern = re.compile(r'\d{5}')
         file_index = pattern.findall(file_name)[0]
         if file_index not in file_index_list:
             file_index_list.append(file_index)
 
-        if re.match(".*T1_orig.*", file_name) is not None:
+        if re.match(r".*T1_orig.nii.gz", file_name) is not None:
             orig_image_name_list.append(file_name)
-        elif re.match(".*T1_brain.*", file_name) is not None:
+        elif re.match(r".*T1_orig_brain.nii.gz", file_name) is not None:
             brain_image_name_list.append(file_name)
 
     file_data_index_list = []
@@ -81,26 +81,6 @@ def import_data(file_path):
         nib.save(test_brain_image_data[i], save_path + "test/" +
                  file_data_index_list[i+len(train_orig_image_data)+len(validation_orig_image_data)]
                  + "_brain.nii.gz")
-    """
-    brain_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_brain.nii.gz'
-    orig_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28677_T1_orig.nii.gz'
-    orig = import_orig_image.load_orig(orig_filename)[:, :, 50].astype(np.uint8)
-    brain = import_brain_image.load_brain(brain_filename)[:, :, 50].astype(np.uint8)
-    print(brain.size)
-    # plt.imshow(orig, cmap='Reds')
-    # plt.imshow(brain)
-    # plt.show()
-    b = np.random.randint(0, 255, (128, 128), dtype=np.uint8)
-    g = np.random.randint(0, 255, (128, 128), dtype=np.uint8)
-    r = np.zeros((128, 128), dtype=np.uint8)
-    img = cv2.merge([orig, brain, r])
-
-    enlarge_img = cv2.resize(img, (0, 0), fx=5, fy=5, interpolation=cv2.INTER_CUBIC)
-
-    cv2.imshow("merged 1", enlarge_img)
-    cv2.waitKey(0)
-    cv2.destroyWindow('test')
-    """
     # return
 
 import_data(file_path1)
