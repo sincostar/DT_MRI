@@ -99,6 +99,7 @@ class Trainer:
         batch_size = kwargs.get('batch_size', 0)
         print_str = kwargs.get('print_str', True)
         need_imgs = kwargs.get('need_imgs', False)
+        print_all_results = kwargs.get('print_all_results', False)  # to print each results and index
         if type(data_in) is dict:
             time_start = time.time()
             eval_dict = self.model.eval(data_in, **kwargs)
@@ -129,6 +130,20 @@ class Trainer:
             time_cost = time.time() - time_start
             print('Evaluate {} data, time cost is {:.1f}'.format(ndata, time_cost))
             print('  {}'.format(U.dict_to_str(eval_dict_str)))
+        if print_all_results:
+            results_dict = {}
+            for key in eval_dict_str:
+                value = eval_dict_str.get(key)
+                if value.shape[0] == ndata:
+                    results_dict[key] = value
+            for i in range(ndata):
+                print_str = "Picture Index: {}\t".format(i)
+                for key in results_dict:
+                    print_str += "{}: ".format(key)
+                    for k in results_dict[key][i]:
+                        print_str += "{:.5f} ".format(k)
+                    print_str += "\t"
+                print(print_str)
         if need_imgs:
             return eval_dict_str, eval_dict_img
         else:

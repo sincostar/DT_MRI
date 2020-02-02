@@ -68,4 +68,40 @@ def load_brain(filename):
     return nib_img
 
 
+def export_mask(mask_arr, out_size):
+    out_width, out_length, out_height = out_size
+    img_arr = ndi.zoom(mask_arr, 4, order=4).copy()
+    # OrthoSlicer3D(img_arr).show()
+    width, height, queue = img_arr.shape
+
+    if width < out_width:
+        img_arr = np.pad(img_arr, ((math.ceil(out_width / 2) - math.ceil(width / 2),
+                                    math.floor(out_width / 2) - math.floor(width / 2)),
+                                   (0, 0), (0, 0)), 'constant')
+    else:
+        x_start = IMAGE_WIDTH - math.ceil(out_width/2)
+        x_end = IMAGE_WIDTH + math.floor(out_width/2)
+        img_arr = img_arr[x_start:x_end, :, :]
+
+    if height < out_length:
+        img_arr = np.pad(img_arr, ((0, 0), (math.ceil(out_length / 2) - math.ceil(height / 2),
+                                            math.floor(out_length / 2) - math.floor(height / 2)),
+                                   (0, 0)), 'constant')
+    else:
+        y_start = IMAGE_LENGTH - math.ceil(out_length/2)
+        y_end = IMAGE_LENGTH + math.floor(out_length/2)
+        img_arr = img_arr[:, y_start:y_end, :]
+
+    if queue < out_height:
+        img_arr = np.pad(img_arr, ((0, 0), (0, 0), (math.ceil(out_height / 2) - math.ceil(queue / 2),
+                                                    math.floor(out_height / 2) - math.floor(queue / 2))),
+                         'constant')
+    else:
+        z_start = IMAGE_HEIGHT - math.ceil(out_height/2)
+        z_end = IMAGE_HEIGHT + math.floor(out_height/2)
+        img_arr = img_arr[:, :, z_start:z_end]
+    # OrthoSlicer3D(img_arr).show()
+    return img_arr
+
+
 # load_brain(brain_filename)

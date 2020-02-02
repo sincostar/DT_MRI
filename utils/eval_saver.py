@@ -12,18 +12,20 @@ def save_str(data_dict, filename, idx):
 
 
 def save_img(data_dict, filepath, idx):
-    print(filepath)
-    print(type(data_dict))
     if data_dict is None or not data_dict:
-        print("Y")
-        return
+        print("Error: The Data Dictionary is not Existed!")
+        exit(0)
     if not os.path.exists(filepath):
-        print("X")
-        os.makedirs(filepath)
+        try:
+            print("Error: The Storage Path is not Existed!\nCreating new path for storing data...")
+            os.makedirs(filepath, exist_ok=True)
+            print("Create the storage path successfully!")
+        except OSError as error:
+            print("Error: The storage path cannot be created!")
+            exit(0)
     for k in data_dict:
         imgs = data_dict[k]
         imgs = np.concatenate(imgs, 0)
-        print('image shape: ' + str(imgs.shape))
         # for the 3D images we choose 5 slices from same direction to show the result
         if len(imgs.shape) == 4 or len(imgs.shape) == 3 and not(imgs.shape[-1] in [1, 3]):
             height = imgs.shape[2]
