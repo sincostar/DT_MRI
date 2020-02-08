@@ -21,7 +21,7 @@ gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.80)
 sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(gpu_options=gpu_options))
 
 file_path = 'D:/DT/BrainMRI/BrainMRI'
-saved_path = "/data/"
+saved_path = "/data/distortion_data/out_img"
 # import_data.import_data(file_path)
 
 parser = argparse.ArgumentParser()
@@ -31,21 +31,21 @@ parser.add_argument('-mbs', '--minibatch_size', type=int, default=2, help='mini-
 parser.add_argument('-ebs', '--eval_batch_size', type=int, default=1, help='mini-batch size')
 parser.add_argument('-ef', '--eval_frequency', type=int, default=1, help='frequency of evaluation within training')
 parser.add_argument('-lr', '--learning_rate', type=float, default=0.0001, help='learning rate')
-parser.add_argument('-out', '--output_path', type=str, default='results/test1')
+parser.add_argument('-out', '--output_path', type=str, default='results/test2')
 args = parser.parse_args()
 
 output_path = args.output_path
 
-data_path = 'data/'
-train_set = glob.glob(data_path + '/train/*_orig.nii.gz')
-valid_set = glob.glob(data_path + '/validation/*_orig.nii.gz')
-test_set = glob.glob(data_path + '/test/*_orig.nii.gz')
+data_path = 'data/distortion_data'
+train_set = glob.glob(data_path + '/train/*_brain.nii.gz')
+valid_set = glob.glob(data_path + '/validation/*_brain.nii.gz')
+test_set = glob.glob(data_path + '/test/*_brain.nii.gz')
 
-org_suffix = '_orig.nii.gz'
-lab_suffix = '_brain.nii.gz'
+org_suffix = '_brain.nii.gz'
+lab_suffix = '_brain_restore.nii.gz'
 
 pre = {org_suffix: [('channelcheck', 1)],
-       lab_suffix: [('one-hot', 2), ('channelcheck', 2)]}
+       lab_suffix: [('channelcheck', 1)]}
 
 
 
@@ -61,7 +61,7 @@ validation_provider = DataProvider(valid_set, [org_suffix, lab_suffix],
 
 u_net = UNet3D(n_class=2, n_layer=3, root_filters=16, use_bn=True)
 
-model = SimpleTFModel(u_net, org_suffix, lab_suffix, dropout=0, loss_function={'cross-entropy': 1.},
+model = SimpleTFModel(u_net, org_suffix, lab_suffix, dropout=0, loss_function={'mse': 1.},
                       weight_function=None)
 optimizer = tf.keras.optimizers.Adam(args.learning_rate)
 

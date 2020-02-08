@@ -18,11 +18,11 @@ IMAGE_LENGTH = 128
 IMAGE_WIDTH = 128
 
 
-def load_brain(filename):
-    img = nib.load(filename)
-    # print(img)
-    # print(img.header['db_name'])  # 输出头信息
+def load_img(filename, **kwargs):
+    get_mask = kwargs.get('get_mask', False)
+    zoom_rate = kwargs.get('zoom_rate', 1)
 
+    img = nib.load(filename)
     width, height, queue = img.dataobj.shape
 
     # OrthoSlicer3D(img.dataobj).show()
@@ -55,13 +55,10 @@ def load_brain(filename):
         z_end = round(queue / 2) + IMAGE_HEIGHT
         img_arr = img_arr[:, :, z_start:z_end]
 
-    for i in range(IMAGE_WIDTH * 2):
-        for j in range(IMAGE_LENGTH * 2):
-            for k in range(IMAGE_HEIGHT * 2):
-                if img_arr[i, j, k]:
-                    img_arr[i, j, k] = 255
+    if get_mask:
+        img_arr = img_arr.astype(bool) * np.ones(img_arr.shape, dtype=float) * 255
 
-    img_arr = ndi.zoom(img_arr, 0.25)
+    img_arr = ndi.zoom(img_arr, zoom_rate)
     nib_img = nib.Nifti1Image(img_arr, img.affine)
 
     # OrthoSlicer3D(img_arr).show()
@@ -70,7 +67,8 @@ def load_brain(filename):
 
 def export_mask(mask_arr, out_size):
     out_width, out_length, out_height = out_size
-    img_arr = ndi.zoom(mask_arr, 4, order=4).copy()
+    # img_arr = ndi.zoom(mask_arr, 4, order=4).copy()
+    img_arr = mask_arr.copy()
     # OrthoSlicer3D(img_arr).show()
     width, height, queue = img_arr.shape
 
@@ -104,4 +102,12 @@ def export_mask(mask_arr, out_size):
     return img_arr
 
 
-# load_brain(brain_filename)
+def export_brain(mask_arr, orig_arr):
+    # mask_arr = export_mask(mask_arr, orig_arr.shape).copy()
+    a = np.array(mask_arr, dtype=bool)
+    b = np.array(orig_arr)
+    brain_arr = a*b
+    return brain_arr
+
+
+# load_img(brain_filename, get_mask=True, zoom_rate=0.25)
