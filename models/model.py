@@ -40,7 +40,8 @@ class SimpleTFModel(Model):
 
         self._loss_dict = {'cross-entropy': LF.cross_entropy,
                            'dice': LF.dice_coefficient,
-                           'balanced_dice': LF.balanced_dice_coefficient}
+                           'balanced_dice': LF.balanced_dice_coefficient,
+                           'mse': LF.mse}
         self._weight_dict = {'balance': LF.balance_weight_map,
                              'feedback': LF.feedback_weight_map}
 
@@ -107,7 +108,10 @@ class SimpleTFModel(Model):
         for lf in self._loss_function:
             weight = self._loss_function[lf]
             loss_function = self._loss_dict[lf]
-            sub_loss_map = loss_function(loss_data_dict)
+            if lf == "mse":
+                sub_loss_map = loss_function(loss_data_dict['logits'], loss_data_dict['labels' ])
+            else:
+                sub_loss_map = loss_function(loss_data_dict)
             total_loss_map = sub_loss_map * weight if total_loss_map is None else total_loss_map + sub_loss_map * weight
    
         if self._weight_function is not None:

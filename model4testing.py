@@ -13,6 +13,7 @@ from import_brain_image import export_mask
 from import_brain_image import export_brain
 import scipy.ndimage as ndi
 import re
+from models.model_reg import RegressionModel
 
 
 config = tf.compat.v1.ConfigProto()
@@ -23,7 +24,7 @@ sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(gpu_options=gpu_opti
 
 org_suffix = '_orig.nii.gz'
 lab_suffix = '_brain.nii.gz'
-train_set = glob.glob('data/train/*_orig.nii.gz')
+train_set = glob.glob('data/distortion/train/*_orig.nii.gz')
 valid_set = glob.glob('data/validation/*_orig.nii.gz')
 test_set1 = glob.glob('data/test/*_orig.nii.gz')
 test_set2 = glob.glob('data/new_test/*_orig.nii.gz')
@@ -32,11 +33,9 @@ img_save_path = 'data/out_image/'
 
 u_net = UNet3D(n_class=2, n_layer=3, root_filters=16, use_bn=True)
 
-model = SimpleTFModel(u_net, org_suffix, lab_suffix, dropout=0, loss_function={'cross-entropy': 1.},
-                      weight_function=None)
+model = RegressionModel(u_net, org_suffix, lab_suffix, dropout=0)
 trainer = Trainer(model)
-trainer.restore('results/best_ckpt/final')
-
+trainer.restore('results/test3/final')
 pre = {org_suffix: [('channelcheck', 1)],
        lab_suffix: [('one-hot', 2), ('channelcheck', 2)]}
 processor = SimpleImageProcessor(pre=pre)

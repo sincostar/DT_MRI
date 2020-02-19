@@ -56,14 +56,15 @@ def load_init_data(file_path, save_path):
         orig_image_name = "sub-" + file_index + "_T1_brain.nii.gz"
         brain_image_name = "sub-" + file_index + "_T1_brain_restore.nii.gz"
         if orig_image_name in orig_image_name_list and brain_image_name in brain_image_name_list:
-            orig_image_data = import_brain_image.load_img(file_path + '/' + orig_image_name)
+            orig_image_data = import_brain_image.load_img(file_path + '/' + orig_image_name, zoom_rate=0.25)
             orig_image_name_list.remove(orig_image_name)
-            brain_image_data = import_brain_image.load_img(file_path + '/' + brain_image_name)
+            brain_image_data = import_brain_image.load_img(file_path + '/' + brain_image_name, zoom_rate=0.25)
             brain_image_name_list.remove(brain_image_name)
             file_data_index_list.append(file_index)
             brain_image_data_list.append(brain_image_data)
             orig_image_data_list.append(orig_image_data)
 
+    '''
     train_orig_image_data = orig_image_data_list[:80]
     train_brain_image_data = brain_image_data_list[:80]
     train_index_list = file_data_index_list[:80]
@@ -79,6 +80,8 @@ def load_init_data(file_path, save_path):
     test_brain_image_data = brain_image_data_list[100:]
     test_index_list = file_data_index_list[100:]
     import_data(test_orig_image_data, test_brain_image_data, test_index_list, save_path, data_subpath="test/")
+    '''
+    import_data(orig_image_data_list, brain_image_data_list, file_data_index_list, save_path, data_subpath="new_test/")
 
 
 def load_addition_testing_data(file_path, save_path):
@@ -104,11 +107,11 @@ def load_addition_testing_data(file_path, save_path):
         brain_image_data = []
         for orig_image_name in orig_image_name_list:
             if re.match(".*" + file_index + ".*", orig_image_name) is not None:
-                orig_image_data = import_orig_image.load_orig(file_path + '/' + orig_image_name, zoom_rate=0.5)
+                orig_image_data = import_orig_image.load_orig(file_path + '/' + orig_image_name)
                 break
         for brain_image_name in brain_image_name_list:
             if re.match(".*" + file_index + ".*", brain_image_name) is not None:
-                brain_image_data = import_brain_image.load_brain(file_path + '/' + brain_image_name, zoom_rate=0.5)
+                brain_image_data = import_brain_image.load_brain(file_path + '/' + brain_image_name)
                 break
         if orig_image_data != [] and brain_image_data != []:
             file_data_index_list.append(file_index)
@@ -118,5 +121,5 @@ def load_addition_testing_data(file_path, save_path):
     import_data(orig_image_data_list, brain_image_data_list, file_data_index_list, save_path, data_subpath="new_test/")
 
 
-load_init_data(file_path1, save_path1)
+load_init_data(file_path2, save_path1)
 # load_addition_testing_data(file_path2, save_path1)

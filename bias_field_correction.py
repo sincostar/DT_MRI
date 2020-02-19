@@ -10,7 +10,7 @@ import glob
 from core.data_processor import SimpleImageProcessor
 from core.data_provider import DataProvider
 from core.trainer_tf import Trainer
-from models.model import SimpleTFModel
+from models.model_reg import RegressionModel
 from nets_tf.unet3d import UNet3D
 
 
@@ -30,8 +30,8 @@ parser.add_argument('-bs', '--batch_size', type=int, default=10, help='batch siz
 parser.add_argument('-mbs', '--minibatch_size', type=int, default=2, help='mini-batch size')
 parser.add_argument('-ebs', '--eval_batch_size', type=int, default=1, help='mini-batch size')
 parser.add_argument('-ef', '--eval_frequency', type=int, default=1, help='frequency of evaluation within training')
-parser.add_argument('-lr', '--learning_rate', type=float, default=0.0001, help='learning rate')
-parser.add_argument('-out', '--output_path', type=str, default='results/test2')
+parser.add_argument('-lr', '--learning_rate', type=float, default=0.001, help='learning rate')
+parser.add_argument('-out', '--output_path', type=str, default='results/test3')
 args = parser.parse_args()
 
 output_path = args.output_path
@@ -47,8 +47,6 @@ lab_suffix = '_brain_restore.nii.gz'
 pre = {org_suffix: [('channelcheck', 1)],
        lab_suffix: [('channelcheck', 1)]}
 
-
-
 processor = SimpleImageProcessor(pre=pre)
 
 train_provider = DataProvider(train_set, [org_suffix, lab_suffix],
@@ -59,10 +57,9 @@ validation_provider = DataProvider(valid_set, [org_suffix, lab_suffix],
                                    is_pre_load=False,
                                    processor=processor)
 
-u_net = UNet3D(n_class=2, n_layer=3, root_filters=16, use_bn=True)
+u_net = UNet3D(n_class=1, n_layer=3, root_filters=16, use_bn=True)
 
-model = SimpleTFModel(u_net, org_suffix, lab_suffix, dropout=0, loss_function={'mse': 1.},
-                      weight_function=None)
+model = RegressionModel(u_net, org_suffix, lab_suffix, dropout=0)
 optimizer = tf.keras.optimizers.Adam(args.learning_rate)
 
 trainer = Trainer(model)
@@ -81,8 +78,8 @@ result = trainer.train(train_provider, validation_provider,
 
 # eval test & pre load test
 test_provider = DataProvider(test_set, [org_suffix, lab_suffix],
-                        is_pre_load=False,
-                        processor=processor)
+                             is_pre_load=False,
+                             processor=processor)
 trainer.restore(output_path + '/ckpt/final')
 eval_dcit = trainer.eval(test_provider, batch_size=args.eval_batch_size)
 

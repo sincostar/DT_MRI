@@ -5,7 +5,7 @@ from tensorflow.keras import Model, layers, initializers
 
 class UNet3D(Model):
 
-    def __init__(self, n_class, n_layer, root_filters, kernal_size=3, pool_size=2, use_bn=True, use_res=True, padding='SAME', concat_or_add='concat'):
+    def __init__(self, n_class, n_layer, root_filters, kernal_size=3, pool_size=2, use_bn=False, use_res=True, padding='SAME', concat_or_add='concat'):
         super().__init__()
         self.dw_layers = dict()
         self.up_layers = dict()
