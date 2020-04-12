@@ -109,11 +109,12 @@ class SimpleTFModel(Model):
             weight = self._loss_function[lf]
             loss_function = self._loss_dict[lf]
             if lf == "mse":
-                sub_loss_map = loss_function(loss_data_dict['logits'], loss_data_dict['labels' ])
+                sub_loss_map = loss_function(loss_data_dict['logits'], loss_data_dict['labels'])
             else:
                 sub_loss_map = loss_function(loss_data_dict)
             total_loss_map = sub_loss_map * weight if total_loss_map is None else total_loss_map + sub_loss_map * weight
-   
+            # total_loss_map1 = tf.identity(total_loss_map)
+
         if self._weight_function is not None:
             for wf in self._weight_function:
                 weight_function = self._weight_dict[wf]
@@ -125,6 +126,7 @@ class SimpleTFModel(Model):
                 total_loss_map *= sub_weight_map
 
         total_loss = tf.reduce_mean(total_loss_map)
+        # total_loss1 = tf.reduce_mean(total_loss_map1)
         return total_loss
 
     def _get_imgs_eval(self, xs, ys, prob):

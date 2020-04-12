@@ -8,6 +8,8 @@ from nibabel.viewers import OrthoSlicer3D
 import numpy as np
 import math
 import scipy.ndimage as ndi
+import glob
+import random
 
 
 brain_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28741_T1_orig_brain.nii.gz'
@@ -16,6 +18,19 @@ orig_filename = 'D:/DT/BrainMRI/BrainMRI/sub-28675_T1_orig.nii.gz'
 IMAGE_HEIGHT = 128
 IMAGE_LENGTH = 128
 IMAGE_WIDTH = 128
+
+
+def three_fold_division(file_path):
+    file_index_list = glob.glob(file_path + '*_brain.nii.gz')
+    random.shuffle(file_index_list)
+    fold1_file = file_index_list[0:100].copy()
+    np.save(file_path+'fold1_file.npy', np.array(fold1_file))
+    fold2_file = file_index_list[100:200].copy()
+    np.save(file_path+'fold2_file.npy', np.array(fold2_file))
+    fold3_file = file_index_list[200:300].copy()
+    np.save(file_path+'fold3_file.npy', np.array(fold3_file))
+    validation_file = file_index_list[300:].copy()
+    np.save(file_path+'validation_file.npy', np.array(validation_file))
 
 
 def load_img(filename, **kwargs):
@@ -28,6 +43,14 @@ def load_img(filename, **kwargs):
     # OrthoSlicer3D(img.dataobj).show()
 
     img_arr = img.dataobj[:, :, :].copy()
+
+    if str(img_arr.dtype) == 'float32' or str(img_arr.dtype) == 'int16':
+        img_arr = (img_arr - img_arr.min()) / (img_arr.max() - img_arr.min())
+    elif str(img_arr.dtype) == 'uint8':
+        img_arr = img_arr / 255
+    else:
+        print(filename + "have unsolved data type. The type is " + str(img_arr.dtype))
+        exit(0)
 
     if width < IMAGE_WIDTH * 2:
         img_arr = np.pad(img_arr, ((IMAGE_WIDTH - math.ceil(width / 2), IMAGE_WIDTH - math.floor(width / 2)),
@@ -111,3 +134,4 @@ def export_brain(mask_arr, orig_arr):
 
 
 # load_img(brain_filename, get_mask=True, zoom_rate=0.25)
+three_fold_division("D:\\DT\\DT_MRI\\data\\distortion_data\\whole_data\\")

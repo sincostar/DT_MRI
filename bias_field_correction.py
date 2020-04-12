@@ -30,16 +30,19 @@ parser.add_argument('-bs', '--batch_size', type=int, default=10, help='batch siz
 parser.add_argument('-mbs', '--minibatch_size', type=int, default=2, help='mini-batch size')
 parser.add_argument('-ebs', '--eval_batch_size', type=int, default=1, help='mini-batch size')
 parser.add_argument('-ef', '--eval_frequency', type=int, default=1, help='frequency of evaluation within training')
-parser.add_argument('-lr', '--learning_rate', type=float, default=0.001, help='learning rate')
+parser.add_argument('-lr', '--learning_rate', type=float, default=0.0001, help='learning rate')
 parser.add_argument('-out', '--output_path', type=str, default='results/test3')
 args = parser.parse_args()
 
 output_path = args.output_path
 
 data_path = 'data/distortion_data'
-train_set = glob.glob(data_path + '/train/*_brain.nii.gz')
-valid_set = glob.glob(data_path + '/validation/*_brain.nii.gz')
-test_set = glob.glob(data_path + '/test/*_brain.nii.gz')
+fold1_list = np.load(data_path + '/whole_data/fold1_file.npy').tolist()
+fold2_list = np.load(data_path + '/whole_data/fold2_file.npy').tolist()
+fold3_list = np.load(data_path + '/whole_data/fold3_file.npy').tolist()
+train_set = fold1_list.copy() + fold2_list.copy()
+valid_set = fold3_list.copy()
+test_set = np.load(data_path + '/whole_data/validation_file.npy').tolist().copy()
 
 org_suffix = '_brain.nii.gz'
 lab_suffix = '_brain_restore.nii.gz'

@@ -26,8 +26,8 @@ IMAGE_WIDTH = 128
 def import_data(orig_image_data, brain_image_data, index_list, save_path, **kwargs):
     data_subpath = kwargs.get('data_subpath', "")
     for i in range(len(orig_image_data)):
-        nib.save(orig_image_data[i], save_path + data_subpath + index_list[i] + "_brain.nii.gz")
-        nib.save(brain_image_data[i], save_path + data_subpath + index_list[i] + "_brain_restore.nii.gz")
+        # nib.save(orig_image_data[i], save_path + data_subpath + index_list[i] + "_brain.nii.gz")
+        # nib.save(brain_image_data[i], save_path + data_subpath + index_list[i] + "_brain_restore.nii.gz")
         print(data_subpath + str(index_list[i]) + "_brain.nii.gz\tis saved.\n" +
               data_subpath + str(index_list[i]) + "_brain_restore.nii.gz\tis saved.")
     # return
@@ -64,7 +64,6 @@ def load_init_data(file_path, save_path):
             brain_image_data_list.append(brain_image_data)
             orig_image_data_list.append(orig_image_data)
 
-    '''
     train_orig_image_data = orig_image_data_list[:80]
     train_brain_image_data = brain_image_data_list[:80]
     train_index_list = file_data_index_list[:80]
@@ -80,8 +79,6 @@ def load_init_data(file_path, save_path):
     test_brain_image_data = brain_image_data_list[100:]
     test_index_list = file_data_index_list[100:]
     import_data(test_orig_image_data, test_brain_image_data, test_index_list, save_path, data_subpath="test/")
-    '''
-    import_data(orig_image_data_list, brain_image_data_list, file_data_index_list, save_path, data_subpath="new_test/")
 
 
 def load_addition_testing_data(file_path, save_path):
@@ -121,5 +118,5 @@ def load_addition_testing_data(file_path, save_path):
     import_data(orig_image_data_list, brain_image_data_list, file_data_index_list, save_path, data_subpath="new_test/")
 
 
-load_init_data(file_path2, save_path1)
+load_init_data(file_path1, save_path1)
 # load_addition_testing_data(file_path2, save_path1)

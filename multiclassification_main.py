@@ -17,37 +17,37 @@ from nets_tf.unet3d import UNet3D
 config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
 session = tf.compat.v1.InteractiveSession(config=config)
-gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.80)
+gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.90)
 sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(gpu_options=gpu_options))
 
-file_path = 'D:/DT/BrainMRI/BrainMRI'
-saved_path = "/data"
-# import_data.import_data(file_path)
+saved_path = "D:/DT/DT_MRI/data/"
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-ep', '--epochs', type=int, default=500, help='number of epochs')
-parser.add_argument('-bs', '--batch_size', type=int, default=10, help='batch size')
-parser.add_argument('-mbs', '--minibatch_size', type=int, default=2, help='mini-batch size')
+parser.add_argument('-bs', '--batch_size', type=int, default=1, help='batch size')
+parser.add_argument('-mbs', '--minibatch_size', type=int, default=1, help='mini-batch size')
 parser.add_argument('-ebs', '--eval_batch_size', type=int, default=1, help='mini-batch size')
 parser.add_argument('-ef', '--eval_frequency', type=int, default=1, help='frequency of evaluation within training')
 parser.add_argument('-lr', '--learning_rate', type=float, default=0.0001, help='learning rate')
-parser.add_argument('-out', '--output_path', type=str, default='results/test1')
+parser.add_argument('-out', '--output_path', type=str, default='results/test9')
 args = parser.parse_args()
 
 output_path = args.output_path
 
-data_path = 'data/skull_strip/'
-train_set = glob.glob(data_path + '/train/*_orig.nii.gz')
-valid_set = glob.glob(data_path + '/validation/*_orig.nii.gz')
-test_set = glob.glob(data_path + '/test/*_orig.nii.gz')
+data_path = "F:/DT_Data/128_size/multi_classification/"
+
+fold1_list = np.load(data_path + '/whole_data/fold1_file.npy').tolist()
+fold2_list = np.load(data_path + '/whole_data/fold2_file.npy').tolist()
+fold3_list = np.load(data_path + '/whole_data/fold3_file.npy').tolist()
+train_set = fold2_list.copy() + fold3_list.copy()
+valid_set = fold1_list.copy()
+test_set = np.load(data_path + '/whole_data/validation_file.npy').tolist().copy()
 
 org_suffix = '_orig.nii.gz'
-lab_suffix = '_brain.nii.gz'
+lab_suffix = '_multiclass_pve.nii.gz'
 
 pre = {org_suffix: [('channelcheck', 1)],
-       lab_suffix: [('one-hot', 2), ('channelcheck', 2)]}
-
-
+       lab_suffix: [('one-hot', 5), ('channelcheck', 5)]}
 
 processor = SimpleImageProcessor(pre=pre)
 
@@ -59,10 +59,10 @@ validation_provider = DataProvider(valid_set, [org_suffix, lab_suffix],
                                    is_pre_load=False,
                                    processor=processor)
 
-u_net = UNet3D(n_class=2, n_layer=3, root_filters=16, use_bn=True)
+u_net = UNet3D(n_class=5, n_layer=4, root_filters=16, use_bn=True)
 
-model = SimpleTFModel(u_net, org_suffix, lab_suffix, dropout=0, loss_function={'dice_coefficient': 1.},
-                      weight_function=None)
+model = SimpleTFModel(u_net, org_suffix, lab_suffix, dropout=0, loss_function={'cross-entropy': 1.},
+                      weight_function={'balance'})
 optimizer = tf.keras.optimizers.Adam(args.learning_rate)
 
 trainer = Trainer(model)
@@ -81,8 +81,7 @@ result = trainer.train(train_provider, validation_provider,
 
 # eval test & pre load test
 test_provider = DataProvider(test_set, [org_suffix, lab_suffix],
-                        is_pre_load=False,
-                        processor=processor)
-trainer.restore(output_path + '/ckpt/final')
+                             is_pre_load=False,
+                             processor=processor)
 eval_dcit = trainer.eval(test_provider, batch_size=args.eval_batch_size)
 

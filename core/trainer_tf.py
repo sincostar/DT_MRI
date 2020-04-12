@@ -70,7 +70,7 @@ class Trainer:
                 
                 # time_ep_save_imgs_end = time.time()
             train_log = ('epoch {} ------ time cost: overall {:.1f} ------ step training {:.1f} ------ step evaluation {:.1f} ------'
-                    .format(ep, time.time()-time_start, ep_train_time, ep_eval_time))
+                         .format(ep, time.time()-time_start, ep_train_time, ep_eval_time))
             
             if ep % eval_frequency == 0 or ep == epochs - 1:
                 train_log += ('\n  train      : {}'.format(U.dict_to_str(ep_train_eval)) + \

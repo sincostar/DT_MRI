@@ -13,6 +13,8 @@ from import_brain_image import export_mask
 from import_brain_image import export_brain
 import scipy.ndimage as ndi
 import re
+import matplotlib.pyplot as plt
+import numpy as np
 from models.model_reg import RegressionModel
 
 
@@ -22,43 +24,65 @@ session = tf.compat.v1.InteractiveSession(config=config)
 gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.80)
 sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(gpu_options=gpu_options))
 
-org_suffix = '_orig.nii.gz'
-lab_suffix = '_brain.nii.gz'
-train_set = glob.glob('data/distortion/train/*_orig.nii.gz')
-valid_set = glob.glob('data/validation/*_orig.nii.gz')
-test_set1 = glob.glob('data/test/*_orig.nii.gz')
-test_set2 = glob.glob('data/new_test/*_orig.nii.gz')
+org_suffix = '_brain.nii.gz'
+lab_suffix = '_brain_restore.nii.gz'
+train_set = glob.glob('data/distortion_data/train/*_brain.nii.gz')
+valid_set = glob.glob('data/distortion_data/validation/*_brain.nii.gz')
+test_set1 = glob.glob('data/distortion_data/test/*_brain.nii.gz')
+test_set2 = glob.glob('data/distortion_data/new_test/*_brain.nii.gz')
+test_result_set2 = glob.glob('data/distortion_data/new_test/*_brain_restore.nii.gz')
 
 img_save_path = 'data/out_image/'
 
-u_net = UNet3D(n_class=2, n_layer=3, root_filters=16, use_bn=True)
+u_net = UNet3D(n_class=1, n_layer=3, root_filters=16, use_bn=True)
 
 model = RegressionModel(u_net, org_suffix, lab_suffix, dropout=0)
 trainer = Trainer(model)
-trainer.restore('results/test3/final')
+trainer.restore('results/test3/ckpt/final')
+
 pre = {org_suffix: [('channelcheck', 1)],
-       lab_suffix: [('one-hot', 2), ('channelcheck', 2)]}
+       lab_suffix: [('channelcheck', 1)]}
 processor = SimpleImageProcessor(pre=pre)
 
 train_provider = DataProvider(train_set, [org_suffix, lab_suffix],
                               is_pre_load=False,
                               processor=processor)
-
 validation_provider = DataProvider(valid_set, [org_suffix, lab_suffix],
                                    is_pre_load=False,
                                    processor=processor)
-
 test_provider = DataProvider(test_set1, [org_suffix, lab_suffix],
                              is_pre_load=False,
                              processor=processor)
+new_test_provider = DataProvider(test_set2, [org_suffix, lab_suffix],
+                                 is_pre_load=False,
+                                 processor=processor)
 '''
 eval_dict = trainer.eval(test_provider ,
                          batch_size=10)
 '''
-eval_dict, eval_image_dict = trainer.eval(train_provider,
-                                          batch_size=10,
-                                          need_imgs=True)
+eval_dict, eval_img_list = trainer.eval(new_test_provider, batch_size=1, need_imgs=True)
+for i in range(len(eval_dict['loss'])):
+    if eval_dict['loss'][i] > 0.002:
+        x = eval_img_list['class 0'][i][:, 128: 192, :]
+        x = (x - x.min()) / (x.max() - x.min())
+        print(test_result_set2[i])
+        print(eval_dict['loss'][i])
+        img = nib.load(test_result_set2[i])
+        # plt.figure()
+        # plt.subplot(1, 2, 1)
+        # plt.imshow(OrthoSlicer3D(x))
+        # plt.subplot(1, 2, 2)
+        # plt.imshow(OrthoSlicer3D(img.dataobj))
+        # plt.show()
+        # OrthoSlicer3D(x).link_to(OrthoSlicer3D(img.dataobj))
+        # OrthoSlicer3D(x)
+        img_arr = img.dataobj[:, :, :].copy()
+        y = (img_arr - img_arr.min()) / (img_arr.max() - img_arr.min())
+        OrthoSlicer3D(y - x).show()
 
+print(np.mean(eval_dict['loss']))
+print(np.std(eval_dict['loss']))
+'''
 mask_list = []
 # to get the test image from the eval image eval dict and store into the mask_list
 for img in eval_image_dict['argmax']:
@@ -77,7 +101,7 @@ for data_path in train_provider._file_list:
     img_data = img.dataobj[:, :, :].copy()
     brain_arr = export_brain(mask, img_data)
     nib_img = nib.Nifti1Image(brain_arr, img.affine)
-    nib.save(nib_img, "data/distortion_data/" + brain_index + ".nii.gz")
+    nib.save(nib_img, "data/distortion_data/" + brain_index + ".nii.gz")'''
 """
 # mask = ndi.zoom(mask_list[0], 4)
 mask = mask_list[0]
@@ -85,7 +109,7 @@ img = nib.load('D:/DT/BrainMRI/BrainMRI/sub-28783_T1_orig.nii.gz')
 # img = nib.load('data/test/28783_orig.nii.gz')
 img_data = img.dataobj[:, :, :].copy()
 img_shape = img_data.shape
-img_mask = export_mask(mask, img_shape)
+img_mask = export_mask(mask, img_shap e)
 
 for i in range(img_shape[0]):
     for j in range(img_shape[1]):
